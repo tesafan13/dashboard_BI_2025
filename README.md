@@ -19,6 +19,4 @@ Python, matplotlyb, seaborn, pandas, numpy, streamlit
 
 ## 👤 Autor
 
-* **Nombre:** [Tu Nombre Completo]
-* **ID/Matrícula:** [Tu Matrícula UP]
-* **Contacto:** [Tu Correo Electrónico UP o personal]
+* **Nombre:** Teresa Sofía González Morales
