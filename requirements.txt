@@ -1,0 +1,6 @@
+#librerías a instalar
+pandas
+numpy
+matplotlib
+seaborn
+plotly
