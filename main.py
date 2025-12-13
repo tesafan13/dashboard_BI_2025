@@ -45,7 +45,7 @@ with tab1:
             'hotel'
         ])['adr'].mean().reset_index()
     
-            line_data['month'] = pd.Categorical(
+        line_data['month'] = pd.Categorical(
                 line_data['arrival_date'],
                 categories=months,
                 ordered=True
