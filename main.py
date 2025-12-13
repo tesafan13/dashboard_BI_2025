@@ -27,7 +27,7 @@ with tab1:
         st.markdown("""Utilizamos el siguiente dataset: [Hotel Booking Demand Dataset](https://www.kaggle.com/datasets/jessemostipak/hotel-booking-demand)
         """)
         df = load_data(url)
-        st.dataframe(df.head(50)
+        st.dataframe(df.head(50))
         st.caption("Nota: Primeros 50 valores del archivo CSV")
         st.write("""En las columnas se pueden observar datos como el tipo de hotel, reservaciones, cancelaciones, fechas y tiempos de llegada, permisos, el páis de origen, tipo de cuarto, forma de pago, y otros datos. 
         """)
