@@ -38,7 +38,7 @@ with tab1:
         # Crear la columna arrival_date
         df_chart['arrival_date'] = df_chart['arrival_date_year'].astype(str) + '-' + df_chart['arrival_date_month'] + '-' + df_chart['arrival_date_day_of_month'].astype(str)
         # ... (El resto de la lógica de transformación y limpieza que NO AFECTE A df original) ...
-
+        df_chart['arrival_date'] = pd.to_datetime(df_chart['arrival_date'])
         # El resto del código de la gráfica usa df_chart:
         line_data = df_chart.groupby([
             df_chart['arrival_date'].dt.month_name(),
