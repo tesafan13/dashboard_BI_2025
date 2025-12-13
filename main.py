@@ -25,7 +25,88 @@ url = 'https://raw.githubusercontent.com/JohnChirinos/BI/refs/heads/main/hotel_b
 def load_data(url):
         df = pd.read_csv(url)
         return df
-df_2 = pd.read_csv(url)
+# dash.py (al inicio, antes del st.title)
+
+# Función para preprocesar los datos de Cancelaciones
+@st.cache_data
+def preprocess_cancellation_data(df_raw):
+    df = df_raw.copy()
+    
+    # Su lógica de limpieza y preparación (desde df['reservation_status_date'] = ... hasta X_train, y_test)
+    df['reservation_status_date'] = pd.to_datetime(df['reservation_status_date'])
+    # ... (Resto de su código de limpieza)
+    df.drop(['company'], axis = 1, inplace = True)
+    df = df[(df["agent"].notna())  & (df["country"].notna())  & 
+    (df["children"].notna()) & (df["adr"] > 0) & (df["adr"] < 5300) 
+    & ~((df["children"] > 0) & (df["adults"] == 0)) & 
+      ~((df["babies"] > 0) & (df["adults"] == 0)) & 
+        ~((df["babies"] > 0) & (df["children"] > 0) & (df["adults"] == 0))]
+    df.reset_index(drop=True, inplace=True)
+    df.drop(columns=['reservation_status', 'reservation_status_date','arrival_date_week_number', 'stays_in_weekend_nights', 'arrival_date_month'], inplace=True)
+    df = pd.get_dummies(df, drop_first=True, dtype=int)
+    
+    X= df.drop('is_canceled', axis = 1)
+    y = df['is_canceled']
+    X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.30, random_state=40, stratify=y)
+    
+    return X_train, X_test, y_train, y_test
+@st.cache_data
+def preprocess_revenue_data(df_raw):
+    df_2 = df_raw.copy()
+    
+    # Su lógica de limpieza y preparación (desde df_2.dropna... hasta X_train, y_test)
+    df_2.dropna(subset=['children'], inplace=True)
+    df_2.dropna(subset=['country'], inplace=True)
+
+    # ... (Resto de su código de limpieza)
+    # ...
+    
+    df_for_model = pd.get_dummies(df_2, drop_first=True, dtype=int)
+
+    X = df_for_model.drop(columns='adr', axis=1)
+    y = df_for_model['adr']
+
+    X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42)
+    
+    return X_train, X_test, y_train, y_test
+@st.cache_resource
+def train_rf_classifier(X_train, y_train):
+    rf = RandomForestClassifier(n_jobs=-1, random_state=40)
+    rf.fit(X_train, y_train)
+    return rf
+
+@st.cache_resource
+def train_xgb_classifier(X_train, y_train):
+    xgb = XGBClassifier(
+        n_jobs=-1,
+        random_state=40,
+        eval_metric='logloss'
+    )
+    xgb.fit(X_train, y_train)
+    return xgb
+# dash.py (al inicio, junto a otras funciones)
+
+@st.cache_resource
+def train_rf_regressor(X_train, y_train):
+    model_rf = RandomForestRegressor()
+    model_rf.fit(X_train, y_train)
+    return model_rf
+
+@st.cache_resource
+def train_rf_regressor_tuned(X_train, y_train):
+    model_rf_tuned = RandomForestRegressor(
+         n_estimators=400,
+         max_depth=30,
+          min_samples_split=5,
+         min_samples_leaf=2,
+          max_features=0.7,
+          random_state=42,
+          n_jobs=-1
+    )
+    model_rf_tuned.fit(X_train, y_train)
+    return model_rf_tuned
 
 st.title("Optimización de Ingresos en    la Industria Hotelera")
 tab1, tab2, tab3 = st.tabs(["👋 Introducción", "❌ Cancelaciones", "💵 Optimización de Ingresos"])
@@ -85,35 +166,11 @@ with tab2:
                         value=f"{score}%"
                         )
         
-        df['reservation_status_date'] = pd.to_datetime(df['reservation_status_date'])
-        df.isnull().sum()
-        df["children"].isna().sum()
-        df.drop(['company'], axis = 1, inplace = True)
-        df = df[(df["agent"].notna())  & (df["country"].notna())  & 
-        (df["children"].notna()) & (df["adr"] > 0) & (df["adr"] < 5300) 
-        & ~((df["children"] > 0) & (df["adults"] == 0)) & 
-          ~((df["babies"] > 0) & (df["adults"] == 0)) & 
-            ~((df["babies"] > 0) & (df["children"] > 0) & (df["adults"] == 0))]
-        df.reset_index(drop=True, inplace=True)
-        df.isna().isnull().sum()
-        df.isna().sum()
-        df_numeric = df.select_dtypes(include='number')
-        df_numeric.columns.tolist()
-        df_categoric = df.select_dtypes(include='object')
-        df_categoric.columns.tolist()
-        sns.color_palette("Paired")
-        df.drop(columns=['reservation_status', 'reservation_status_date','arrival_date_week_number', 'stays_in_weekend_nights', 'arrival_date_month'], inplace=True)
-        df = pd.get_dummies(df, drop_first=True, dtype=int)
-        X= df.drop('is_canceled', axis = 1)
-        y = df['is_canceled']
-        X_train, X_test, y_train, y_test = train_test_split(
-        X, y, 
-        test_size=0.30, 
-        random_state=40)
-        X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.30, random_state=40, stratify=y)
-        rf = RandomForestClassifier(n_jobs=-1, random_state=40)
-        rf.fit(X_train, y_train)
+        # Reemplazar todo el código de preprocesamiento por una llamada a la función:
+        X_train, X_test, y_train, y_test = preprocess_cancellation_data(df)
+
+        # Reemplazar el entrenamiento por una llamada a la función:
+        rf = train_rf_classifier(X_train, y_train)
         rf_pred = rf.predict(X_test)
         rf_prob = rf.predict_proba(X_test)[:,1]
         fpr, tpr, _ = roc_curve(y_test, rf_prob)
@@ -183,12 +240,7 @@ with tab2:
                         )
         
 
-        xgb = XGBClassifier(
-        n_jobs=-1,
-        random_state=40,
-        eval_metric='logloss'
-                )
-        xgb.fit(X_train, y_train)
+        xgb = train_xgb_classifier(X_train, y_train)
         xgb_pred = xgb.predict(X_test)
         xgb_prob = xgb.predict_proba(X_test)[:,1]
         fpr, tpr, _ = roc_curve(y_test, xgb_prob)
@@ -213,90 +265,9 @@ with tab2:
                 plt.ylabel("Real")
                 st.pyplot(plt)
 with tab3: 
+        X_train, X_test, y_train, y_test = preprocess_revenue_data(df)
 
-        df_2.dropna(subset=['children'], inplace=True)
-        df_2.dropna(subset=['country'], inplace=True)
-
-        df_2['arrival_date'] = (
-                df_2['arrival_date_year'].astype(str) + '-' +
-                df_2['arrival_date_month'] + '-' +
-                df_2['arrival_date_day_of_month'].astype(str)
-                )
-
-        cols = list(df_2.columns)
-        cols.insert(3, cols.pop(cols.index('arrival_date')))
-        df_2 = df_2.loc[:, cols]
-
-        df_2.drop(
-                 ['arrival_date_year', 'arrival_date_month', 'arrival_date_day_of_month'],
-                 axis=1,
-                  inplace=True
-                )
-
-        df_2['arrival_date'] = pd.to_datetime(df_2['arrival_date'])
-        df_2['reservation_status_date'] = pd.to_datetime(df_2['reservation_status_date'])
-
-        df_2['is_canceled'] = df_2['is_canceled'].astype(bool)
-        df_2['is_repeated_guest'] = df_2['is_repeated_guest'].astype(bool)
-        df_2['children'] = df_2['children'].astype(int)
-
-        df_2[['agent', 'company']].dropna(subset=['agent', 'company'])
-
-        df_2.drop(
-                  [
-                 "is_canceled", "booking_changes", "reservation_status",
-                 "reservation_status_date", "required_car_parking_spaces",
-                 "total_of_special_requests", "assigned_room_type",
-                 "agent", "company"
-                 ],
-                 axis=1,
-                 inplace=True
-                )
-
-        dummy = df_2.drop(columns=['country'])
-        dummy = pd.get_dummies(dummy, dtype=int)
-
-        df_2.drop(df_2[df_2['adr'] == 5400].index, inplace=True)
-        df_2.drop(df_2[df_2['adr'] < 0].index, inplace=True)
-
-        df_2[df_2['adults'] > 10]
-        df_2[df_2['children'] >= 3].sort_values('children', ascending=False)
-
-        df_2.drop(df_2[df_2['children'] == 10].index, inplace=True)
-        df_2.drop(df_2[df_2['babies'] >= 3].index, inplace=True)
-
-        df_2[((df_2['adults'] == 0) & (df_2['children'] > 0)) |
-         ((df_2['adults'] == 0) & (df_2['babies'] > 0))]
-
-        df_2 = df_2[(df_2['adults'] > 0)]
-
-        df_2[df_2['days_in_waiting_list'] > 0].sort_values(
-          'days_in_waiting_list', ascending=False
-        )
-
-        df_2[df_2['days_in_waiting_list'] > 0]['days_in_waiting_list'].count()
-
-        months = [
-                 'January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December'
-                ]
-
-        df_2 = df_2.drop(['arrival_date'], axis=1)
-
-        df_for_model = pd.get_dummies(df_2, drop_first=True, dtype=int)
-
-        X = df_for_model.drop(columns='adr', axis=1)
-        y = df_for_model['adr']
-
-        X_train, X_test, y_train, y_test = train_test_split(
-        X, y,
-        test_size=0.2,
-        random_state=42
-        )
-
-        model_random_forest = RandomForestRegressor()
-
-        model_random_forest.fit(X_train, y_train)
+        model_random_forest = train_rf_regressor(X_train, y_train)
 
         y_pred = model_random_forest.predict(X_test)
         y_pred_train = model_random_forest.predict(X_train)
@@ -344,17 +315,7 @@ with tab3:
         st.pyplot(plt)
 
         # Modelo ajustado
-        model_random_forest = RandomForestRegressor(
-         n_estimators=400,
-         max_depth=30,
-          min_samples_split=5,
-         min_samples_leaf=2,
-          max_features=0.7,
-          random_state=42,
-          n_jobs=-1
-        )
-
-        model_random_forest.fit(X_train, y_train)
+        model_random_forest = train_rf_regressor_tuned(X_train, y_train)
 
         y_pred = model_random_forest.predict(X_test)
 
@@ -404,4 +365,3 @@ with tab3:
         plt.title("Random Forest – Real vs Predicción")
 
         st.pyplot(plt)
-
