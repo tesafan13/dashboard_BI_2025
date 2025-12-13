@@ -54,28 +54,30 @@ with tab1:
             )
 
         line_data = line_data.sort_values('month')
+        col1, col2= st.columns(2)
+        with col1:
+            fig, ax1 = plt.subplots(figsize=(12, 8))
 
-        fig, ax1 = plt.subplots(figsize=(12, 8))
+            sns.lineplot(
+                line_data,
+                x='month',
+                y='adr',
+                hue='hotel',
+                marker='o',
+                ax=ax1
+            )
 
-        sns.lineplot(
-            line_data,
-            x='month',
-            y='adr',
-            hue='hotel',
-            marker='o',
-            ax=ax1
-        )
+            ax1.set_title("Tarifa diaria promedio por mes y tipo de hotel", fontsize=20, pad=25)
+            ax1.set_xlabel("Mes", fontsize=20, labelpad=18)
+            ax1.set_ylabel("Tarifa diaria promedio (ADR)", fontsize=16, labelpad=15)
+            ax1.tick_params(axis='x', rotation=18, labelsize=12)
+            ax1.tick_params(axis='y', labelsize=14)
+            ax1.legend(title="Tipo de hotel")
 
-        ax1.set_title("Tarifa diaria promedio por mes y tipo de hotel", fontsize=20, pad=25)
-        ax1.set_xlabel("Mes", fontsize=20, labelpad=18)
-        ax1.set_ylabel("Tarifa diaria promedio (ADR)", fontsize=16, labelpad=15)
-        ax1.tick_params(axis='x', rotation=18, labelsize=12)
-        ax1.tick_params(axis='y', labelsize=14)
-        ax1.legend(title="Tipo de hotel")
-
-        plt.tight_layout()
-        st.pyplot(fig)
-        
+            plt.tight_layout()
+            st.pyplot(fig)
+        with col2:
+            st.image("months.png")
 with tab2:
         st.header("❌ Cancelaciones", divider = 'red')
         st.header("Modelo Random Forest", divider='green')
