@@ -53,10 +53,7 @@ with tab1:
         df[df['children'] >= 3].sort_values('children', ascending=False)
         df.drop(df[df['children'] == 10].index, inplace=True)
         df.drop(df[df['babies'] >= 3].index, inplace=True)
-        df[((df['adults'] == 0) & (df['children'] > 0)) | ((df['adults'] == 0) & (df['babies'] > 0))]
         df = df[(df['adults'] > 0)]
-        df[df['days_in_waiting_list'] > 0].sort_values('days_in_waiting_list', ascending=False)
-        df[df['days_in_waiting_list'] > 0]['days_in_waiting_list'].count()
         months = ['January', 'February', 'March', 'April', 'May', 'June',
                  'July', 'August', 'September', 'October', 'November', 'December']
         df = df.drop(['arrival_date'], axis=1)
