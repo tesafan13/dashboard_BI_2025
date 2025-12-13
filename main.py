@@ -33,23 +33,23 @@ with tab1:
         """)
         df_chart = df.copy()
         df_chart.dropna(subset=['children'], inplace=True)
-    df_chart.dropna(subset=['country'], inplace=True)
+        df_chart.dropna(subset=['country'], inplace=True)
     
-    # Crear la columna arrival_date
-    df_chart['arrival_date'] = df_chart['arrival_date_year'].astype(str) + '-' + df_chart['arrival_date_month'] + '-' + df_chart['arrival_date_day_of_month'].astype(str)
-    # ... (El resto de la lógica de transformación y limpieza que NO AFECTE A df original) ...
+        # Crear la columna arrival_date
+        df_chart['arrival_date'] = df_chart['arrival_date_year'].astype(str) + '-' + df_chart['arrival_date_month'] + '-' + df_chart['arrival_date_day_of_month'].astype(str)
+        # ... (El resto de la lógica de transformación y limpieza que NO AFECTE A df original) ...
 
-    # El resto del código de la gráfica usa df_chart:
-    line_data = df_chart.groupby([
-        df_chart['arrival_date'].dt.month_name(),
-        'hotel'
-    ])['adr'].mean().reset_index()
+        # El resto del código de la gráfica usa df_chart:
+        line_data = df_chart.groupby([
+            df_chart['arrival_date'].dt.month_name(),
+            'hotel'
+        ])['adr'].mean().reset_index()
     
-        line_data['month'] = pd.Categorical(
-            line_data['arrival_date'],
-            categories=months,
-            ordered=True
-        )
+            line_data['month'] = pd.Categorical(
+                line_data['arrival_date'],
+                categories=months,
+                ordered=True
+            )
 
         line_data = line_data.sort_values('month')
 
