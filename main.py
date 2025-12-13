@@ -39,6 +39,8 @@ with tab1:
         df_chart['arrival_date'] = df_chart['arrival_date_year'].astype(str) + '-' + df_chart['arrival_date_month'] + '-' + df_chart['arrival_date_day_of_month'].astype(str)
         # ... (El resto de la lógica de transformación y limpieza que NO AFECTE A df original) ...
         df_chart['arrival_date'] = pd.to_datetime(df_chart['arrival_date'])
+        months = ['January', 'February', 'March', 'April', 'May', 'June',
+              'July', 'August', 'September', 'October', 'November', 'December']
         # El resto del código de la gráfica usa df_chart:
         line_data = df_chart.groupby([
             df_chart['arrival_date'].dt.month_name(),
@@ -73,7 +75,7 @@ with tab1:
 
         plt.tight_layout()
         st.pyplot(fig)
-
+        
 with tab2:
         st.header("❌ Cancelaciones", divider = 'red')
         st.header("Modelo Random Forest", divider='green')
