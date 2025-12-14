@@ -31,6 +31,7 @@ with tab1:
         st.caption("Nota: Primeros 50 valores del archivo CSV")
         st.write("""En las columnas se pueden observar datos como el tipo de hotel, reservaciones, cancelaciones, fechas y tiempos de llegada, permisos, el páis de origen, tipo de cuarto, forma de pago, y otros datos. 
         """)
+        st.subheader("Tablas")
         df_chart = df.copy()
         df_chart.dropna(subset=['children'], inplace=True)
         df_chart.dropna(subset=['country'], inplace=True)
@@ -55,7 +56,7 @@ with tab1:
 
         line_data = line_data.sort_values('month')
         col1, col2= st.columns(2)
-        st.subheader("Tablas")
+        
         with col1:
             fig, ax1 = plt.subplots(figsize=(12, 8))
 
