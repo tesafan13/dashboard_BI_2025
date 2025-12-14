@@ -55,6 +55,7 @@ with tab1:
 
         line_data = line_data.sort_values('month')
         col1, col2= st.columns(2)
+        st.subheader("Tablas")
         with col1:
             fig, ax1 = plt.subplots(figsize=(12, 8))
 
@@ -78,6 +79,7 @@ with tab1:
             st.pyplot(fig)
         with col2:
             st.image("months.png")
+        
 with tab2:
         st.header("❌ Cancelaciones", divider = 'red')
         st.header("Modelo Random Forest", divider='green')
