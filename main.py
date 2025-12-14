@@ -177,6 +177,7 @@ with tab2:
                 st.image("roc_xg.png")
         with col2:
                 st.image("mat_conf_xg.png")
+        st.caption("Nota: Se intento subir los modelos de ML pero fue mucho para Streamlit :(")
 with tab3: 
         st.header("Modelo RandomForest", divider='green')
         st.subheader("Train", divider = 'gray')
@@ -240,4 +241,5 @@ with tab3:
                         )
         
         st.image("real_pred_tune.png")
+        st.caption("Nota: Se intento subir los modelos de ML pero fue mucho para Streamlit :(")
 
